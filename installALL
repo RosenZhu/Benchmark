@@ -5,7 +5,7 @@ mkdir /downloads/bins/binutils
 tar xvf binutils-2.28.tar.gz
 cd binutils-2.28
 ## capital "O"; the folder binutils should exist
-./configure --disable-shared --prefix=/downloads/bins/binutils CC=gcc CXX=g++  CFLAGS="-g -O2"
+./configure --disable-shared --prefix=/downloads/bins/binutils CC=gcc CXX=g++  CFLAGS="-g"
 make
 ## move bins into /downloads/bins/binutils
 make install
@@ -14,40 +14,68 @@ make install
 mkdir /downloads/bins/bison
 tar -xJf bison-3.0.4.tar.xz
 cd bison-3.0.4
-./configure --enable-silent-rules --prefix=/downloads/bins/bison CC=gcc CXX=g++ CFLAGS="-g -O2"
+./configure --enable-silent-rules --prefix=/downloads/bins/bison CC=gcc CXX=g++ CFLAGS="-g"
 make && make install
 
 # catdoc
 mkdir /downloads/bins/catdoc
 tar -xzf catdoc-0.95.tar.gz
 cd catdoc-0.95
-./configure --prefix=/downloads/bins/catdoc CC=gcc CXX=g++ CFLAGS="-g -O2"
+./configure --prefix=/downloads/bins/catdoc CC=gcc CXX=g++ CFLAGS="-g"
 make && make install
 
 # cflow
 mkdir /downloads/bins/cflow
 tar -xzf cflow-1.5.tar.gz
 cd cflow-1.5
-./configure --enable-silent-rules --prefix=/downloads/bins/cflow CC=gcc CXX=g++ CFLAGS="-g -O2"
+./configure --enable-silent-rules --prefix=/downloads/bins/cflow CC=gcc CXX=g++ CFLAGS="-g"
 make && make install
 
 # clamav
+### [install instructions](https://www.clamav.net/documents/installation-on-debian-and-ubuntu-linux-distributions)
 mkdir /downloads/bins/clamav
 tar -xzf clamav-0.102.1.tar.gz
 cd clamav-0.102.1
-apt-get update
-apt-get install libssl-dev
-./configure --prefix=/downloads/bins/clamav CC=gcc CXX=g++ CFLAGS="-g -O2"
-make && make install
+./configure  --enable-static=yes --with-pic=non-PIC --enable-check --with-libjson-static=/downloads/libjson-c/build/libjson-c.a --prefix=/downloads/bins/clamav CC=gcc CXX=g++ CFLAGS="-g" CXXFLAGS="-g"
+make -j4 
+make install
+cp /downloads/bins/clamav/etc/freshclam.conf.sample /downloads/bins/clamav/etc/freshclam.conf
+### remove the Example line in freshclam.conf so freshclam can use the config.
+mkdir /downloads/bins/clamav/share/clamav
+groupadd clamav
+useradd -g clamav -s /bin/false -c "Clam Antivirus" clamav
+chown -R clamav:clamav /downloads/bins/clamav/share/clamav
+### downloads database
+/downloads/bins/clamav/bin/freshclam
+### run scan: clamscan -i /path/to/dir
 
-# GraphicsMagick
-mkdir /downloads/bins/GraphicsMagick
+
+        requirements: 
+        apt-get update
+        apt-get install libssl-dev
+
+        git clone https://github.com/json-c/json-c.git
+        mkdir build
+        cmake -DCMAKE_INSTALL_PREFIX=/downloads/libjson-c/build/ -DBUILD_SHARED_LIBS=OFF ../json-c/
+        make && make install
+
+# GraphicsMagick-1-3-26
+mkdir /downloads/bins/GraphicsMagick-1-3-26
 tar -xzf GraphicsMagick-1.3.26.tar.gz
 cd GraphicsMagick-1.3.26
-./configure --disable-shared --prefix=/downloads/bins/GraphicsMagick CC=gcc CXX=g++ CFLAGS="-g -O2"
+./configure --disable-shared --prefix=/downloads/bins/GraphicsMagick-1-3-26 CC=gcc CXX=g++ CFLAGS="-g" CXXFLAGS="-g"
+make && make install
+
+# GraphicsMagick-1.3.34
+mkdir /downloads/bins/GraphicsMagick
+apt-get install lzip
+tar --lzip -xf GraphicsMagick-1.3.34.tar.lz
+cd GraphicsMagick-1.3.34
+./configure --disable-shared --prefix=/downloads/bins/GraphicsMagick CC=gcc CXX=g++ CFLAGS="-g" CXXFLAGS="-g"
 make && make install
 
 # jasper
+http://www.linuxfromscratch.org/blfs/view/8.1/general/jasper.html
 mkdir /downloads/bins/jasper
 tar -xzf jasper-2.0.12.tar.gz
 mkdir buildjasper
@@ -68,15 +96,16 @@ make && make install
 mkdir /downloads/bins/libdwarf
 tar -xzf libdwarf-20191104.tar.gz
 cd libdwarf-20191104
-./configure --enable-silent-rules --prefix=/downloads/bins/libdwarf CC=gcc CXX=g++ CFLAGS="-g -O2"
+./configure --enable-silent-rules --prefix=/downloads/bins/libdwarf CC=gcc CXX=g++ CFLAGS="-g"
 make && make install
 
 # exiv2
+wget https://github.com/Exiv2/exiv2/archive/0.27.1.zip
 mkdir /downloads/bins/exiv2
-tar -xzf exiv2-0.27.2-Source.tar.gz
-mkdir buildexiv2
-cd buildexiv2
-cmake /downloads/becsource/exiv2/exiv2-0.27.2-Source  -DCMAKE_INSTALL_PREFIX="/downloads/bins/exiv2" -DBUILD_SHARED_LIBS=OFF -DEXIV2_ENABLE_NLS=OFF -DCMAKE_BUILD_TYPE=Release
+unzip 0.27.1.zip 
+mkdir buildexiv271
+cd buildexiv271
+cmake /downloads/becsource/exiv2/exiv2-0.27.1  -DCMAKE_INSTALL_PREFIX="/downloads/bins/exiv271" -DBUILD_SHARED_LIBS=OFF -DEXIV2_ENABLE_NLS=OFF -DCMAKE_BUILD_TYPE=Release
 cmake --build .
 make tests
 make install
@@ -135,6 +164,12 @@ make && make install
 ## skip -make error##
 
 # libsass
+
+###sassc: 3.6.1-8-g3e73
+###libsass: 3.6.3-40-gf674
+###sass2scss: 1.1.1
+###sass: 3.5
+
 mkdir /downloads/bins/libsass
 tar -xzf libsass-3.5.0.tar.gz
 cd libsass-3.5.0
@@ -142,6 +177,16 @@ autoreconf --force --install
 ./configure --disable-shared --disable-tests --prefix=/downloads/bins/libsass CC=gcc CXX=g++  CFLAGS="-g" CXXFLAGS="-g"
 make -j4
 make -j4 install
+
+mkdir /downloads/bins/sassc
+git clone https://github.com/sass/sassc.git
+cd sassc
+autoreconf --force --install
+./configure --prefix=/downloads/bins/sassc --with-libsass=/downloads/bins/libsass
+make -j4
+make install
+
+
 
 # libtasn1
 mkdir /downloads/bins/libtasn1
