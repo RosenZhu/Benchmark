@@ -78,7 +78,7 @@ afl-fuzz -i seed_dir -o out_dir -t 500 ...
 
 ## libmpg123
 ## -s: output to stdout; -t: test mode, no output
-[instruction] (http://manpages.ubuntu.com/manpages/bionic/zh_TW/man1/mpg123.1.html)
+[instruction](http://manpages.ubuntu.com/manpages/bionic/zh_TW/man1/mpg123.1.html)
 
 ./mpg123 -s @@
 
@@ -115,7 +115,7 @@ afl-fuzz -i seed_dir -o out_dir -t 500 ...
 
 takes an input regexp to fuzz vim regexp engine
 
-    ./vim -u NONE -X -Z -e -s -c 'call search(getline("."))' -c ':qa!' @@
+./vim -u NONE -X -Z -e -s -c 'call search(getline("."))' -c ':qa!' @@
 
 
 
