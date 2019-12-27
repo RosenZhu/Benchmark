@@ -79,6 +79,7 @@ afl-fuzz -i seed_dir -o out_dir -t 500 ...
 ## libmpg123
 ## -s: output to stdout; -t: test mode, no output
 [instruction] (http://manpages.ubuntu.com/manpages/bionic/zh_TW/man1/mpg123.1.html)
+
 ./mpg123 -s @@
 
 ## libncurses - too complex
@@ -89,6 +90,7 @@ afl-fuzz -i seed_dir -o out_dir -t 500 ...
 
 ## libtasn1
 [instruction](https://gnutls.gitlab.io/libtasn1/libtasn1.html#Utilities)
+
 ./asn1Parser -o out -n arr @@
 
 ## libtiff/tiff2pdf
@@ -105,12 +107,15 @@ afl-fuzz -i seed_dir -o out_dir -t 500 ...
 
 ## pspp
 [instruction](https://manpages.ubuntu.com/manpages/disco/man1/pspp.1.html)
+
 ./pspp @@
 
 ## vim
 [parameters](https://linux.die.net/man/1/rvim)
-### it takes an input regexp to fuzz vim regexp engine
-./vim -u NONE -X -Z -e -s -c 'call search(getline("."))' -c ':qa!' @@
+
+takes an input regexp to fuzz vim regexp engine
+
+    ./vim -u NONE -X -Z -e -s -c 'call search(getline("."))' -c ':qa!' @@
 
 
 
