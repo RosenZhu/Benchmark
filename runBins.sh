@@ -1,21 +1,5 @@
 #!/bin/bash
 
-# Hee="hello"
-
-# for i in 1 2 3
-# do
-# (
-#  sleep 5
-#  echo "subsh"
-#  echo "${Hee}${i}"
-# )&
-# echo "topsh${i}"
-# done
-# wait
-# #sleep 2
-# echo "out side"
-# #ps -ef | grep "sleep 5" | grep -v 'grep' | awk '{print $2}' | xargs kill -9
-
 
 target_dir=/apps/target-bins
 # 1 sfconvert
