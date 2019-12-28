@@ -239,7 +239,7 @@ pdftohtml_version=64
 
 
 # run fuzzing
-cd /apps/becfuzz
+
 N="1"
 
 # different output folder
@@ -261,7 +261,7 @@ tiff2ps_param="-1 -O ${tiff2ps_out}${N}/out.ps @@"
 
 nasm_param="-f elf64 -l ${nasm_out}${N}/out.lst -o ${nasm_out}${N}/out.o @@"
 
-
+cd /apps/becfuzz
 
 (
 ./runbecNoDict.sh ${sfconvert_out}$N $sfconvert_seeds $sfconvert_bin $sfconvert_version $sfconvert_param
