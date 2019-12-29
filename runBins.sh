@@ -23,7 +23,7 @@ objdump_seeds=${target_dir}/objdump/seed_dir
 objdump_out=/mnt/objdump
 objdump_version=128
 
-# 4 nm
+# 4 nm --uncondjump instrument error
 nm_bin=${target_dir}/nm/nm
 nm_param="-n @@"
 nm_seeds=${target_dir}/nm/seed_dir
@@ -76,7 +76,7 @@ md5sum_version=64
 
 # 11 lava/uniq
 uniq_bin=${target_dir}/lava_uniq/uniq
-uniq_param=" "
+uniq_param="@@"
 uniq_seeds=${target_dir}/lava_uniq/seed_dir
 uniq_out=/mnt/uniq
 uniq_version=64
@@ -155,7 +155,7 @@ dwarfdump_version=64
 lou_translate_bin=${target_dir}/liblouis/lou_translate
 lou_translate_seeds=${target_dir}/liblouis/seed_dir
 lou_translate_out=/mnt/lou_translate
-lou_translate_param="-f unicode.dis,en-us-g2.ctb < @@"
+lou_translate_param="-f unicode.dis,en-us-g2.ctb @@"
 lou_translate_version=64
 
 # 23 libming/listswf
@@ -240,7 +240,7 @@ pdftohtml_version=64
 
 # run fuzzing
 
-N="1"
+N=1
 
 # different output folder
 sfconvert_param="@@ ${sfconvert_out}${N}/out.mp3 format aiff"
@@ -251,7 +251,7 @@ jasper_param="-f @@ -T bmp -F ${jasper_out}${N}/out.bmp"
 
 avconv_param="-i @@ -r 24 ${avconv_out}${N}/out.avi"
 
-sassc_param="@@ > ${sassc_out}${N}/out.css"
+sassc_param="@@"  #> ${sassc_out}${N}/out.css
 
 asn1Parser_param="-o ${asn1Parser_out}${N}/out -n arr @@"
 
@@ -261,214 +261,235 @@ tiff2ps_param="-1 -O ${tiff2ps_out}${N}/out.ps @@"
 
 nasm_param="-f elf64 -l ${nasm_out}${N}/out.lst -o ${nasm_out}${N}/out.o @@"
 
-cd /apps/becfuzz
+# COMMDS=('/apps/becfuzz ./runbecNoDict.sh'
+#         '/apps/becfast ./runfastNoDict.sh'
+#         '/apps/collafl-dyninst ./runcollNoDict.sh')
+COMMDS=('/apps/becfuzz ./runbecNoDict.sh')
 
+
+for fc in "${COMMDS[@]}"
+do
+cmd=($fc)
 (
-./runbecNoDict.sh ${sfconvert_out}$N $sfconvert_seeds $sfconvert_bin $sfconvert_version $sfconvert_param
-sfconvert_size=$(stat -c%s "$sfconvert_bin")
-echo "size of $sfconvert_bin = $sfconvert_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${sfconvert_out}$N $sfconvert_seeds $sfconvert_bin $sfconvert_version $sfconvert_param
+# sfconvert_size=$(stat -c%s "$sfconvert_bin")
+# echo "size of $sfconvert_bin = $sfconvert_size bytes"
 )&
 (
-./runbecNoDict.sh ${readelf_out}$N $readelf_seeds $readelf_bin $readelf_version $readelf_param
-readelf_size=$(stat -c%s "$readelf_bin")
-echo "size of $readelf_bin = $readelf_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${readelf_out}$N $readelf_seeds $readelf_bin $readelf_version $readelf_param
+# readelf_size=$(stat -c%s "$readelf_bin")
+# echo "size of $readelf_bin = $readelf_size bytes"
 )&
 (
-./runbecNoDict.sh ${objdump_out}$N $objdump_seeds $objdump_bin $objdump_version $objdump_param
-objdump_size=$(stat -c%s "$objdump_bin")
-echo "size of $objdump_bin = $objdump_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${objdump_out}$N $objdump_seeds $objdump_bin $objdump_version $objdump_param
+# objdump_size=$(stat -c%s "$objdump_bin")
+# echo "size of $objdump_bin = $objdump_size bytes"
 )&
 (
-./runbecNoDict.sh ${nm_out}$N $nm_seeds $nm_bin $nm_version $nm_param
-nm_size=$(stat -c%s "$nm_bin")
-echo "size of $nm_bin = $nm_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${bsdtar_out}$N $bsdtar_seeds $bsdtar_bin $bsdtar_version $bsdtar_param
+# bsdtar_size=$(stat -c%s "$bsdtar_bin")
+# echo "size of $bsdtar_bin = $bsdtar_size bytes"
 )&
 (
-./runbecNoDict.sh ${bsdtar_out}$N $bsdtar_seeds $bsdtar_bin $bsdtar_version $bsdtar_param
-bsdtar_size=$(stat -c%s "$bsdtar_bin")
-echo "size of $bsdtar_bin = $bsdtar_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${djpeg_out}$N $djpeg_seeds $djpeg_bin $djpeg_version $djpeg_param
+# djpeg_size=$(stat -c%s "$djpeg_bin")
+# echo "size of $djpeg_bin = $djpeg_size bytes"
 )&
 (
-./runbecNoDict.sh ${djpeg_out}$N $djpeg_seeds $djpeg_bin $djpeg_version $djpeg_param
-djpeg_size=$(stat -c%s "$djpeg_bin")
-echo "size of $djpeg_bin = $djpeg_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${cert_out}$N $cert_seeds $cert_bin $cert_version $cert_param
+# cert_size=$(stat -c%s "$cert_bin")
+# echo "size of $cert_bin = $cert_size bytes"
 )&
 (
-./runbecNoDict.sh ${cert_out}$N $cert_seeds $cert_bin $cert_version $cert_param
-cert_size=$(stat -c%s "$cert_bin")
-echo "size of $cert_bin = $cert_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${tcpdump_out}$N $tcpdump_seeds $tcpdump_bin $tcpdump_version $tcpdump_param
+# tcpdump_size=$(stat -c%s "$tcpdump_bin")
+# echo "size of $tcpdump_bin = $tcpdump_size bytes"
 )&
 (
-./runbecNoDict.sh ${tcpdump_out}$N $tcpdump_seeds $tcpdump_bin $tcpdump_version $tcpdump_param
-tcpdump_size=$(stat -c%s "$tcpdump_bin")
-echo "size of $tcpdump_bin = $tcpdump_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${base64_out}$N $base64_seeds $base64_bin $base64_version $base64_param
+# base64_size=$(stat -c%s "$base64_bin")
+# echo "size of $base64_bin = $base64_size bytes"
 )&
 (
-./runbecNoDict.sh ${base64_out}$N $base64_seeds $base64_bin $base64_version $base64_param
-base64_size=$(stat -c%s "$base64_bin")
-echo "size of $base64_bin = $base64_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${md5sum_out}$N $md5sum_seeds $md5sum_bin $md5sum_version $md5sum_param
+# md5sum_size=$(stat -c%s "$md5sum_bin")
+# echo "size of $md5sum_bin = $md5sum_size bytes"
 )&
 (
-./runbecNoDict.sh ${md5sum_out}$N $md5sum_seeds $md5sum_bin $md5sum_version $md5sum_param
-md5sum_size=$(stat -c%s "$md5sum_bin")
-echo "size of $md5sum_bin = $md5sum_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${who_out}$N $who_seeds $who_bin $who_version $who_param
+# who_size=$(stat -c%s "$who_bin")
+# echo "size of $who_bin = $who_size bytes"
 )&
 (
-./runbecNoDict.sh ${uniq_out}$N $uniq_seeds $uniq_bin $uniq_version $uniq_param
-uniq_size=$(stat -c%s "$uniq_bin")
-echo "size of $uniq_bin = $uniq_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${gm_out}$N $gm_seeds $gm_bin $gm_version $gm_param
+# gm_size=$(stat -c%s "$gm_bin")
+# echo "size of $gm_bin = $gm_size bytes"
 )&
 (
-./runbecNoDict.sh ${who_out}$N $who_seeds $who_bin $who_version $who_param
-who_size=$(stat -c%s "$who_bin")
-echo "size of $who_bin = $who_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${bison_out}$N $bison_seeds $bison_bin $bison_version $bison_param
+# bison_size=$(stat -c%s "$bison_bin")
+# echo "size of $bison_bin = $bison_size bytes"
 )&
 (
-./runbecNoDict.sh ${gm_out}$N $gm_seeds $gm_bin $gm_version $gm_param
-gm_size=$(stat -c%s "$gm_bin")
-echo "size of $gm_bin = $gm_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${catdoc_out}$N $catdoc_seeds $catdoc_bin $catdoc_version $catdoc_param
+# catdoc_size=$(stat -c%s "$catdoc_bin")
+# echo "size of $catdoc_bin = $catdoc_size bytes"
 )&
 (
-./runbecNoDict.sh ${bison_out}$N $bison_seeds $bison_bin $bison_version $bison_param
-bison_size=$(stat -c%s "$bison_bin")
-echo "size of $bison_bin = $bison_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${cflow_out}$N $cflow_seeds $cflow_bin $cflow_version $cflow_param
+# cflow_size=$(stat -c%s "$cflow_bin")
+# echo "size of $cflow_bin = $cflow_size bytes"
 )&
 (
-./runbecNoDict.sh ${catdoc_out}$N $catdoc_seeds $catdoc_bin $catdoc_version $catdoc_param
-catdoc_size=$(stat -c%s "$catdoc_bin")
-echo "size of $catdoc_bin = $catdoc_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${clamscan_out}$N $clamscan_seeds $clamscan_bin $clamscan_version $clamscan_param
+# clamscan_size=$(stat -c%s "$clamscan_bin")
+# echo "size of $clamscan_bin = $clamscan_size bytes"
 )&
 (
-./runbecNoDict.sh ${cflow_out}$N $cflow_seeds $cflow_bin $cflow_version $cflow_param
-cflow_size=$(stat -c%s "$cflow_bin")
-echo "size of $cflow_bin = $cflow_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${pdftohtml_out}$N $pdftohtml_seeds $pdftohtml_bin $pdftohtml_version $pdftohtml_param
+# pdftohtml_size=$(stat -c%s "$pdftohtml_bin")
+# echo "size of $pdftohtml_bin = $pdftohtml_size bytes"
 )&
 (
-./runbecNoDict.sh ${clamscan_out}$N $clamscan_seeds $clamscan_bin $clamscan_version $clamscan_param
-clamscan_size=$(stat -c%s "$clamscan_bin")
-echo "size of $clamscan_bin = $clamscan_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${exiv2_out}$N $exiv2_seeds $exiv2_bin $exiv2_version $exiv2_param
+# exiv2_size=$(stat -c%s "$exiv2_bin")
+# echo "size of $exiv2_bin = $exiv2_size bytes"
 )&
 (
-./runbecNoDict.sh ${exiv2_out}$N $exiv2_seeds $exiv2_bin $exiv2_version $exiv2_param
-exiv2_size=$(stat -c%s "$exiv2_bin")
-echo "size of $exiv2_bin = $exiv2_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${jasper_out}$N $jasper_seeds $jasper_bin $jasper_version $jasper_param
+# jasper_size=$(stat -c%s "$jasper_bin")
+# echo "size of $jasper_bin = $jasper_size bytes"
 )&
 (
-./runbecNoDict.sh ${jasper_out}$N $jasper_seeds $jasper_bin $jasper_version $jasper_param
-jasper_size=$(stat -c%s "$jasper_bin")
-echo "size of $jasper_bin = $jasper_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${avconv_out}$N $avconv_seeds $avconv_bin $avconv_version $avconv_param
+# avconv_size=$(stat -c%s "$avconv_bin")
+# echo "size of $avconv_bin = $avconv_size bytes"
 )&
 (
-./runbecNoDict.sh ${avconv_out}$N $avconv_seeds $avconv_bin $avconv_version $avconv_param
-avconv_size=$(stat -c%s "$avconv_bin")
-echo "size of $avconv_bin = $avconv_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${dwarfdump_out}$N $dwarfdump_seeds $dwarfdump_bin $dwarfdump_version $dwarfdump_param
+# dwarfdump_size=$(stat -c%s "$dwarfdump_bin")
+# echo "size of $dwarfdump_bin = $dwarfdump_size bytes"
 )&
 (
-./runbecNoDict.sh ${dwarfdump_out}$N $dwarfdump_seeds $dwarfdump_bin $dwarfdump_version $dwarfdump_param
-dwarfdump_size=$(stat -c%s "$dwarfdump_bin")
-echo "size of $dwarfdump_bin = $dwarfdump_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${lou_translate_out}$N $lou_translate_seeds $lou_translate_bin $lou_translate_version $lou_translate_param
+# lou_translate_size=$(stat -c%s "$lou_translate_bin")
+# echo "size of $lou_translate_bin = $lou_translate_size bytes"
 )&
 (
-./runbecNoDict.sh ${lou_translate_out}$N $lou_translate_seeds $lou_translate_bin $lou_translate_version $lou_translate_param
-lou_translate_size=$(stat -c%s "$lou_translate_bin")
-echo "size of $lou_translate_bin = $lou_translate_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${listswf_out}$N $listswf_seeds $listswf_bin $listswf_version $listswf_param
+# listswf_size=$(stat -c%s "$listswf_bin")
+# echo "size of $listswf_bin = $listswf_size bytes"
 )&
 (
-./runbecNoDict.sh ${listswf_out}$N $listswf_seeds $listswf_bin $listswf_version $listswf_param
-listswf_size=$(stat -c%s "$listswf_bin")
-echo "size of $listswf_bin = $listswf_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${mpg123_out}$N $mpg123_seeds $mpg123_bin $mpg123_version $mpg123_param
+# mpg123_size=$(stat -c%s "$mpg123_bin")
+# echo "size of $mpg123_bin = $mpg123_size bytes"
 )&
 (
-./runbecNoDict.sh ${mpg123_out}$N $mpg123_seeds $mpg123_bin $mpg123_version $mpg123_param
-mpg123_size=$(stat -c%s "$mpg123_bin")
-echo "size of $mpg123_bin = $mpg123_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${sassc_out}$N $sassc_seeds $sassc_bin $sassc_version $sassc_param
+# sassc_size=$(stat -c%s "$sassc_bin")
+# echo "size of $sassc_bin = $sassc_size bytes"
 )&
 (
-./runbecNoDict.sh ${sassc_out}$N $sassc_seeds $sassc_bin $sassc_version $sassc_param
-sassc_size=$(stat -c%s "$sassc_bin")
-echo "size of $sassc_bin = $sassc_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${asn1Parser_out}$N $asn1Parser_seeds $asn1Parser_bin $asn1Parser_version $asn1Parser_param
+# asn1Parser_size=$(stat -c%s "$asn1Parser_bin")
+# echo "size of $asn1Parser_bin = $asn1Parser_size bytes"
 )&
 (
-./runbecNoDict.sh ${asn1Parser_out}$N $asn1Parser_seeds $asn1Parser_bin $asn1Parser_version $asn1Parser_param
-asn1Parser_size=$(stat -c%s "$asn1Parser_bin")
-echo "size of $asn1Parser_bin = $asn1Parser_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${tiff2pdf_out}$N $tiff2pdf_seeds $tiff2pdf_bin $tiff2pdf_version $tiff2pdf_param
+# tiff2pdf_size=$(stat -c%s "$tiff2pdf_bin")
+# echo "size of $tiff2pdf_bin = $tiff2pdf_size bytes"
 )&
 (
-./runbecNoDict.sh ${tiff2pdf_out}$N $tiff2pdf_seeds $tiff2pdf_bin $tiff2pdf_version $tiff2pdf_param
-tiff2pdf_size=$(stat -c%s "$tiff2pdf_bin")
-echo "size of $tiff2pdf_bin = $tiff2pdf_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${tiff2ps_out}$N $tiff2ps_seeds $tiff2ps_bin $tiff2ps_version $tiff2ps_param
+# tiff2ps_size=$(stat -c%s "$tiff2ps_bin")
+# echo "size of $tiff2ps_bin = $tiff2ps_size bytes"
 )&
 (
-./runbecNoDict.sh ${tiff2ps_out}$N $tiff2ps_seeds $tiff2ps_bin $tiff2ps_version $tiff2ps_param
-tiff2ps_size=$(stat -c%s "$tiff2ps_bin")
-echo "size of $tiff2ps_bin = $tiff2ps_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${nasm_out}$N $nasm_seeds $nasm_bin $nasm_version $nasm_param
+# nasm_size=$(stat -c%s "$nasm_bin")
+# echo "size of $nasm_bin = $nasm_size bytes"
 )&
 (
-./runbecNoDict.sh ${nasm_out}$N $nasm_seeds $nasm_bin $nasm_version $nasm_param
-nasm_size=$(stat -c%s "$nasm_bin")
-echo "size of $nasm_bin = $nasm_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${pspp_out}$N $pspp_seeds $pspp_bin $pspp_version $pspp_param
+# pspp_size=$(stat -c%s "$pspp_bin")
+# echo "size of $pspp_bin = $pspp_size bytes"
 )&
 (
-./runbecNoDict.sh ${pspp_out}$N $pspp_seeds $pspp_bin $pspp_version $pspp_param
-pspp_size=$(stat -c%s "$pspp_bin")
-echo "size of $pspp_bin = $pspp_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${vim_out}$N $vim_seeds $vim_bin $vim_version $vim_param
+# vim_size=$(stat -c%s "$vim_bin")
+# echo "size of $vim_bin = $vim_size bytes"
 )&
 (
-./runbecNoDict.sh ${vim_out}$N $vim_seeds $vim_bin $vim_version $vim_param
-vim_size=$(stat -c%s "$vim_bin")
-echo "size of $vim_bin = $vim_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${cjson_out}$N $cjson_seeds $cjson_bin $cjson_version $cjson_param
+# cjson_size=$(stat -c%s "$cjson_bin")
+# echo "size of $cjson_bin = $cjson_size bytes"
 )&
 (
-./runbecNoDict.sh ${cjson_out}$N $cjson_seeds $cjson_bin $cjson_version $cjson_param
-cjson_size=$(stat -c%s "$cjson_bin")
-echo "size of $cjson_bin = $cjson_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${uniq_out}$N $uniq_seeds $uniq_bin $uniq_version $uniq_param
+# uniq_size=$(stat -c%s "$uniq_bin")
+# echo "size of $uniq_bin = $uniq_size bytes"
 )&
 (
-./runbecNoDict.sh ${pdftohtml_out}$N $pdftohtml_seeds $pdftohtml_bin $pdftohtml_version $pdftohtml_param
-pdftohtml_size=$(stat -c%s "$pdftohtml_bin")
-echo "size of $pdftohtml_bin = $pdftohtml_size bytes"
+cd ${cmd[0]}
+${cmd[1]} ${nm_out}$N $nm_seeds $nm_bin $nm_version $nm_param
+# nm_size=$(stat -c%s "$nm_bin")
+# echo "size of $nm_bin = $nm_size bytes"
 )&
+done
 wait
 echo "complete."
 
 
-# run fuzz djpeg
+
+
+## with error
 # (
-# cd /apps/becfuzz
-# N="1"
-# ./runbecNoDict.sh ${djpeg_out}$N $djpeg_seeds $djpeg_bin $djpeg_param
-# #chmod 777 -R ${djpeg_out}$N
+# cd ${cmd[0]}
+# ${cmd[1]} ${nm_out}$N $nm_seeds $nm_bin $nm_version $nm_param
+# # nm_size=$(stat -c%s "$nm_bin")
+# # echo "size of $nm_bin = $nm_size bytes"
 # )&
-# echo "parent shell"
-# wait
-# echo "next one"
 
+## cannot be killed
 # (
-# cd /apps/collafl-dyninst
-# N="1"
-# ./runcollNoDict.sh ${djpeg_out}$N $djpeg_seeds $djpeg_bin $djpeg_param
-# #chmod 777 -R ${djpeg_out}$N
+# cd ${cmd[0]}
+# ${cmd[1]} ${uniq_out}$N $uniq_seeds $uniq_bin $uniq_version $uniq_param
+# # uniq_size=$(stat -c%s "$uniq_bin")
+# # echo "size of $uniq_bin = $uniq_size bytes"
 # )&
-# echo "parent shell"
-# wait
-# echo "next one"
-
-# (
-# cd /apps/becfast
-# N="1"
-# ./runfastNoDict.sh ${djpeg_out}$N $djpeg_seeds $djpeg_bin $djpeg_param
-# # chmod 777 -R ${djpeg_out}$N
-# echo "child shell"
-# )&
-# echo "parent shell"
-# wait
-# echo "next one"
-
-
-
-
-
-
 
 
 
