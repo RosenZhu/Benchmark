@@ -2,12 +2,12 @@
 
 
 target_dir=/apps/target-bins
-fuzz_time=1m
+fuzz_time=24h
 
 # run fuzzing
 
-#2 3 4 5 6 7
-for N in 1
+
+for N in 1 2 3 4 5 6 7
 do
     exp_out=/mnt/expmt${N}
     mkdir ${exp_out}
@@ -16,7 +16,7 @@ do
     sfconvert_bin=${target_dir}/audiofile/sfconvert
     sfconvert_seeds=${target_dir}/audiofile/seed_dir
     sfconvert_out=${exp_out}/sfconvert
-    sfconvert_param="@@ ${sfconvert_out}${N}/out.mp3 format aiff"
+    sfconvert_param="@@ ${exp_out}/sfconvertout.mp3 format aiff"
     sfconvert_version=64
 
     # 2 readelf
@@ -31,7 +31,7 @@ do
     objdump_param="-d @@"
     objdump_seeds=${target_dir}/objdump/seed_dir
     objdump_out=${exp_out}/objdump
-    objdump_version=128
+    objdump_version=64
 
     # 4 nm --uncondjump instrument error
     nm_bin=${target_dir}/nm/nm
@@ -102,7 +102,7 @@ do
     gm_bin=${target_dir}/graphicsMagick/gm
     gm_seeds=${target_dir}/graphicsMagick/seed_dir
     gm_out=${exp_out}/gm
-    gm_param="convert -page A4+0+0 @@ ${gm_out}${N}/out.ps"
+    gm_param="convert -page A4+0+0 @@ ${exp_out}/gmout.ps"
     gm_version=128
 
 
@@ -110,7 +110,7 @@ do
     bison_bin=${target_dir}/bison/bison
     bison_seeds=${target_dir}/bison/seed_dir
     bison_out=${exp_out}/bison
-    bison_param="-vdty -b ${bison_out}${N} @@"
+    bison_param="-vdty -b ${exp_out}/ @@"
     bison_version=64
 
 
@@ -129,7 +129,7 @@ do
     exiv2_seeds=${target_dir}/exiv2/seed_dir
     exiv2_out=${exp_out}/exiv2
     exiv2_param="-pt @@"
-    exiv2_version=128
+    exiv2_version=64
 
 
 
@@ -165,7 +165,7 @@ do
     sassc_bin=${target_dir}/sassc/sassc
     sassc_seeds=${target_dir}/sassc/seed_dir
     sassc_out=${exp_out}/sassc
-    sassc_param="@@"  #> ${sassc_out}${N}/out.css
+    sassc_param="@@ > ${exp_out}/sasscout.css"  
     sassc_version=64
 
 
@@ -173,7 +173,7 @@ do
     asn1Parser_bin=${target_dir}/libtasn1/asn1Parser
     asn1Parser_seeds=${target_dir}/libtasn1/seed_dir
     asn1Parser_out=${exp_out}/asn1Parser
-    asn1Parser_param="-o ${asn1Parser_out}${N}/out -n arr @@"
+    asn1Parser_param="-o ${exp_out}/asn1out -n arr @@"
     asn1Parser_version=64
 
 
@@ -181,14 +181,14 @@ do
     tiff2pdf_bin=${target_dir}/tiff2pdf/tiff2pdf
     tiff2pdf_seeds=${target_dir}/tiff2pdf/seed_dir
     tiff2pdf_out=${exp_out}/tiff2pdf
-    tiff2pdf_param="-o ${tiff2pdf_out}${N}/out.pdf @@"
+    tiff2pdf_param="-o ${exp_out}/tiffpdfout.pdf @@"
     tiff2pdf_version=64
 
     # 28 tiff2ps
     tiff2ps_bin=${target_dir}/tiff2ps/tiff2ps
     tiff2ps_seeds=${target_dir}/tiff2ps/seed_dir
     tiff2ps_out=${exp_out}/tiff2ps
-    tiff2ps_param="-1 -O ${tiff2ps_out}${N}/out.ps @@"
+    tiff2ps_param="-1 -O ${exp_out}/tiffpsout.ps @@"
     tiff2ps_version=64
 
 
@@ -196,7 +196,7 @@ do
     nasm_bin=${target_dir}/nasm/nasm
     nasm_seeds=${target_dir}/nasm/seed_dir
     nasm_out=${exp_out}/nasm
-    nasm_param="-f elf64 -l ${nasm_out}${N}/out.lst -o ${nasm_out}${N}/out.o @@"
+    nasm_param="-f elf64 -l ${exp_out}/nasmout.lst -o ${exp_out}/nasmout.o @@"
     nasm_version=64
 
 
@@ -215,7 +215,7 @@ do
     cjson_param="@@"
     cjson_seeds=${target_dir}/cjson/seed_dir
     cjson_out=${exp_out}/cjson
-    cjson_dict="-x ${target_dir}/cjson/json.dict"
+    cjson_dict="${target_dir}/cjson/json.dict"
     cjson_version=64
 
     # 33 pdftohtml
@@ -223,193 +223,212 @@ do
     pdftohtml_param="@@"
     pdftohtml_seeds=${target_dir}/poppler/seed_dir
     pdftohtml_out=${exp_out}/pdftohtml
-    pdftohtml_dict="-x ${target_dir}/poppler/pdf.dict"
+    pdftohtml_dict="${target_dir}/poppler/pdf.dict"
     pdftohtml_version=64
 
 
 
-    # COMMDS=('/apps/becfuzz ./runbecNoDict.sh'
-    #         '/apps/becfast ./runfastNoDict.sh'
-    #         '/apps/collafl-dyninst ./runcollNoDict.sh'
-    #         '/apps/afl ./runAflNoDict.sh'
-    #         '/apps/aflfast ./runAflfastNoDict.sh')
+    COMMDS=('/apps/becfuzz ./runbecNoDict.sh'
+            '/apps/becfast ./runfastNoDict.sh'
+            '/apps/collafl-dyninst ./runcollNoDict.sh'
+            '/apps/afl ./runAflNoDict.sh'
+            '/apps/aflfast ./runAflfastNoDict.sh')
 
-    COMMDS=('/apps/becfuzz ./runbecNoDict.sh')
+    # COMMDS=('/apps/becfuzz ./runbecNoDict.sh')
 
-
+    # nodict: without dictionary
     for fc in "${COMMDS[@]}"
     do
         cmd=($fc)
+
         (
         cd ${cmd[0]}
-        ${cmd[1]} ${sfconvert_out}$N $sfconvert_seeds $sfconvert_bin $sfconvert_version $fuzz_time $sfconvert_param
-        # sfconvert_size=$(stat -c%s "$sfconvert_bin")
-        # echo "size of $sfconvert_bin = $sfconvert_size bytes"
-        )&
-        (
-        cd ${cmd[0]}
-        ${cmd[1]} ${objdump_out}$N $objdump_seeds $objdump_bin $objdump_version $fuzz_time $objdump_param
+        ${cmd[1]} ${objdump_out}$N $objdump_seeds $objdump_bin $objdump_version $fuzz_time "nodict" $objdump_param
         # objdump_size=$(stat -c%s "$objdump_bin")
         # echo "size of $objdump_bin = $objdump_size bytes"
         )&
         (
         cd ${cmd[0]}
-        ${cmd[1]} ${nm_out}$N $nm_seeds $nm_bin $nm_version $fuzz_time $nm_param
+        ${cmd[1]} ${nm_out}$N $nm_seeds $nm_bin $nm_version $fuzz_time "nodict" $nm_param
         # nm_size=$(stat -c%s "$nm_bin")
         # echo "size of $nm_bin = $nm_size bytes"
-        )&
+        )& 
         (
         cd ${cmd[0]}
-        ${cmd[1]} ${base64_out}$N $base64_seeds $base64_bin $base64_version $fuzz_time $base64_param
-        # base64_size=$(stat -c%s "$base64_bin")
-        # echo "size of $base64_bin = $base64_size bytes"
-        )&
-        (
-        cd ${cmd[0]}
-        ${cmd[1]} ${who_out}$N $who_seeds $who_bin $who_version $fuzz_time $who_param
-        # who_size=$(stat -c%s "$who_bin")
-        # echo "size of $who_bin = $who_size bytes"
-        )&
-        (
-        cd ${cmd[0]}
-        ${cmd[1]} ${uniq_out}$N $uniq_seeds $uniq_bin $uniq_version $fuzz_time $uniq_param
-        # uniq_size=$(stat -c%s "$uniq_bin")
-        # echo "size of $uniq_bin = $uniq_size bytes"
-        )&
-        (
-        cd ${cmd[0]}
-        ${cmd[1]} ${md5sum_out}$N $md5sum_seeds $md5sum_bin $md5sum_version $fuzz_time $md5sum_param
-        # md5sum_size=$(stat -c%s "$md5sum_bin")
-        # echo "size of $md5sum_bin = $md5sum_size bytes"
-        )&
-        (
-        cd ${cmd[0]}
-        ${cmd[1]} ${tcpdump_out}$N $tcpdump_seeds $tcpdump_bin $tcpdump_version $fuzz_time $tcpdump_param
+        ${cmd[1]} ${tcpdump_out}$N $tcpdump_seeds $tcpdump_bin $tcpdump_version $fuzz_time "nodict" $tcpdump_param
         # tcpdump_size=$(stat -c%s "$tcpdump_bin")
         # echo "size of $tcpdump_bin = $tcpdump_size bytes"
         )&
         (
         cd ${cmd[0]}
-        ${cmd[1]} ${djpeg_out}$N $djpeg_seeds $djpeg_bin $djpeg_version $fuzz_time $djpeg_param
-        # djpeg_size=$(stat -c%s "$djpeg_bin")
-        # echo "size of $djpeg_bin = $djpeg_size bytes"
-        )&
-        (
-        cd ${cmd[0]}
-        ${cmd[1]} ${cert_out}$N $cert_seeds $cert_bin $cert_version $fuzz_time $cert_param
-        # cert_size=$(stat -c%s "$cert_bin")
-        # echo "size of $cert_bin = $cert_size bytes"
-        )&
-
-        (
-        cd ${cmd[0]}
-        ${cmd[1]} ${readelf_out}$N $readelf_seeds $readelf_bin $readelf_version $fuzz_time $readelf_param
+        ${cmd[1]} ${readelf_out}$N $readelf_seeds $readelf_bin $readelf_version $fuzz_time "nodict" $readelf_param
         # readelf_size=$(stat -c%s "$readelf_bin")
         # echo "size of $readelf_bin = $readelf_size bytes"
         )&
         (
         cd ${cmd[0]}
-        ${cmd[1]} ${bsdtar_out}$N $bsdtar_seeds $bsdtar_bin $bsdtar_version $fuzz_time $bsdtar_param
+        ${cmd[1]} ${bsdtar_out}$N $bsdtar_seeds $bsdtar_bin $bsdtar_version $fuzz_time "nodict" $bsdtar_param
         # bsdtar_size=$(stat -c%s "$bsdtar_bin")
         # echo "size of $bsdtar_bin = $bsdtar_size bytes"
         )&
         (
         cd ${cmd[0]}
-        ${cmd[1]} ${gm_out}$N $gm_seeds $gm_bin $gm_version $fuzz_time $gm_param
+        ${cmd[1]} ${gm_out}$N $gm_seeds $gm_bin $gm_version $fuzz_time "nodict" $gm_param
         # gm_size=$(stat -c%s "$gm_bin")
         # echo "size of $gm_bin = $gm_size bytes"
         )&
         (
         cd ${cmd[0]}
-        ${cmd[1]} ${bison_out}$N $bison_seeds $bison_bin $bison_version $fuzz_time $bison_param
-        # bison_size=$(stat -c%s "$bison_bin")
-        # echo "size of $bison_bin = $bison_size bytes"
-        )&
-        (
-        cd ${cmd[0]}
-        ${cmd[1]} ${cflow_out}$N $cflow_seeds $cflow_bin $cflow_version $fuzz_time $cflow_param
-        # cflow_size=$(stat -c%s "$cflow_bin")
-        # echo "size of $cflow_bin = $cflow_size bytes"
-        )&
-        (
-        cd ${cmd[0]}
-        ${cmd[1]} ${exiv2_out}$N $exiv2_seeds $exiv2_bin $exiv2_version $fuzz_time $exiv2_param
+        ${cmd[1]} ${exiv2_out}$N $exiv2_seeds $exiv2_bin $exiv2_version $fuzz_time "nodict" $exiv2_param
         # exiv2_size=$(stat -c%s "$exiv2_bin")
         # echo "size of $exiv2_bin = $exiv2_size bytes"
         )&
         (
         cd ${cmd[0]}
-        ${cmd[1]} ${avconv_out}$N $avconv_seeds $avconv_bin $avconv_version $fuzz_time $avconv_param
-        # avconv_size=$(stat -c%s "$avconv_bin")
-        # echo "size of $avconv_bin = $avconv_size bytes"
-        )&
-        (
-        cd ${cmd[0]}
-        ${cmd[1]} ${dwarfdump_out}$N $dwarfdump_seeds $dwarfdump_bin $dwarfdump_version $fuzz_time $dwarfdump_param
+        ${cmd[1]} ${dwarfdump_out}$N $dwarfdump_seeds $dwarfdump_bin $dwarfdump_version $fuzz_time "nodict" $dwarfdump_param
         # dwarfdump_size=$(stat -c%s "$dwarfdump_bin")
         # echo "size of $dwarfdump_bin = $dwarfdump_size bytes"
         )&
         (
         cd ${cmd[0]}
-        ${cmd[1]} ${lou_translate_out}$N $lou_translate_seeds $lou_translate_bin $lou_translate_version $fuzz_time $lou_translate_param
-        # lou_translate_size=$(stat -c%s "$lou_translate_bin")
-        # echo "size of $lou_translate_bin = $lou_translate_size bytes"
-        )&
-        (
-        cd ${cmd[0]}
-        ${cmd[1]} ${listswf_out}$N $listswf_seeds $listswf_bin $listswf_version $fuzz_time $listswf_param
-        # listswf_size=$(stat -c%s "$listswf_bin")
-        # echo "size of $listswf_bin = $listswf_size bytes"
-        )&
-        (
-        cd ${cmd[0]}
-        ${cmd[1]} ${mpg123_out}$N $mpg123_seeds $mpg123_bin $mpg123_version $fuzz_time $mpg123_param
-        # mpg123_size=$(stat -c%s "$mpg123_bin")
-        # echo "size of $mpg123_bin = $mpg123_size bytes"
-        )&
-        (
-        cd ${cmd[0]}
-        ${cmd[1]} ${sassc_out}$N $sassc_seeds $sassc_bin $sassc_version $fuzz_time $sassc_param
+        ${cmd[1]} ${sassc_out}$N $sassc_seeds $sassc_bin $sassc_version $fuzz_time "nodict" $sassc_param
         # sassc_size=$(stat -c%s "$sassc_bin")
         # echo "size of $sassc_bin = $sassc_size bytes"
         )&
         (
         cd ${cmd[0]}
-        ${cmd[1]} ${asn1Parser_out}$N $asn1Parser_seeds $asn1Parser_bin $asn1Parser_version $fuzz_time $asn1Parser_param
-        # asn1Parser_size=$(stat -c%s "$asn1Parser_bin")
-        # echo "size of $asn1Parser_bin = $asn1Parser_size bytes"
-        )&
-        (
-        cd ${cmd[0]}
-        ${cmd[1]} ${tiff2pdf_out}$N $tiff2pdf_seeds $tiff2pdf_bin $tiff2pdf_version $fuzz_time $tiff2pdf_param
+        ${cmd[1]} ${tiff2pdf_out}$N $tiff2pdf_seeds $tiff2pdf_bin $tiff2pdf_version $fuzz_time "nodict" $tiff2pdf_param
         # tiff2pdf_size=$(stat -c%s "$tiff2pdf_bin")
         # echo "size of $tiff2pdf_bin = $tiff2pdf_size bytes"
         )&
         (
         cd ${cmd[0]}
-        ${cmd[1]} ${tiff2ps_out}$N $tiff2ps_seeds $tiff2ps_bin $tiff2ps_version $fuzz_time $tiff2ps_param
-        # tiff2ps_size=$(stat -c%s "$tiff2ps_bin")
-        # echo "size of $tiff2ps_bin = $tiff2ps_size bytes"
-        )&
-        (
-        cd ${cmd[0]}
-        ${cmd[1]} ${nasm_out}$N $nasm_seeds $nasm_bin $nasm_version $fuzz_time $nasm_param
+        ${cmd[1]} ${nasm_out}$N $nasm_seeds $nasm_bin $nasm_version $fuzz_time "nodict" $nasm_param
         # nasm_size=$(stat -c%s "$nasm_bin")
         # echo "size of $nasm_bin = $nasm_size bytes"
         )&
         (
         cd ${cmd[0]}
-        ${cmd[1]} ${pspp_out}$N $pspp_seeds $pspp_bin $pspp_version $fuzz_time $pspp_param
+        ${cmd[1]} ${pdftohtml_out}$N $pdftohtml_seeds $pdftohtml_bin $pdftohtml_version $fuzz_time $pdftohtml_dict $pdftohtml_param
+        # pdftohtml_size=$(stat -c%s "$pdftohtml_bin")
+        # echo "size of $pdftohtml_bin = $pdftohtml_size bytes"
+        )&
+        
+    done
+    wait
+    echo "experiment 1-${N} complete."
+
+    for fcs in "${COMMDS[@]}"
+    do
+        cmd=($fcs)
+
+        (
+        cd ${cmd[0]}
+        ${cmd[1]} ${sfconvert_out}$N $sfconvert_seeds $sfconvert_bin $sfconvert_version $fuzz_time  "nodict" $sfconvert_param
+        # sfconvert_size=$(stat -c%s "$sfconvert_bin")
+        # echo "size of $sfconvert_bin = $sfconvert_size bytes"
+        )&
+        (
+        cd ${cmd[0]}
+        ${cmd[1]} ${djpeg_out}$N $djpeg_seeds $djpeg_bin $djpeg_version $fuzz_time "nodict" $djpeg_param
+        # djpeg_size=$(stat -c%s "$djpeg_bin")
+        # echo "size of $djpeg_bin = $djpeg_size bytes"
+        )&
+        (
+        cd ${cmd[0]}
+        ${cmd[1]} ${cert_out}$N $cert_seeds $cert_bin $cert_version $fuzz_time "nodict" $cert_param
+        # cert_size=$(stat -c%s "$cert_bin")
+        # echo "size of $cert_bin = $cert_size bytes"
+        )&
+        (
+        cd ${cmd[0]}
+        ${cmd[1]} ${bison_out}$N $bison_seeds $bison_bin $bison_version $fuzz_time "nodict" $bison_param
+        # bison_size=$(stat -c%s "$bison_bin")
+        # echo "size of $bison_bin = $bison_size bytes"
+        )&
+        (
+        cd ${cmd[0]}
+        ${cmd[1]} ${cflow_out}$N $cflow_seeds $cflow_bin $cflow_version $fuzz_time "nodict" $cflow_param
+        # cflow_size=$(stat -c%s "$cflow_bin")
+        # echo "size of $cflow_bin = $cflow_size bytes"
+        )&
+        (
+        cd ${cmd[0]}
+        ${cmd[1]} ${lou_translate_out}$N $lou_translate_seeds $lou_translate_bin $lou_translate_version $fuzz_time "nodict" $lou_translate_param
+        # lou_translate_size=$(stat -c%s "$lou_translate_bin")
+        # echo "size of $lou_translate_bin = $lou_translate_size bytes"
+        )&
+        (
+        cd ${cmd[0]}
+        ${cmd[1]} ${listswf_out}$N $listswf_seeds $listswf_bin $listswf_version $fuzz_time "nodict" $listswf_param
+        # listswf_size=$(stat -c%s "$listswf_bin")
+        # echo "size of $listswf_bin = $listswf_size bytes"
+        )&
+        (
+        cd ${cmd[0]}
+        ${cmd[1]} ${mpg123_out}$N $mpg123_seeds $mpg123_bin $mpg123_version $fuzz_time "nodict" $mpg123_param
+        # mpg123_size=$(stat -c%s "$mpg123_bin")
+        # echo "size of $mpg123_bin = $mpg123_size bytes"
+        )&
+        (
+        cd ${cmd[0]}
+        ${cmd[1]} ${asn1Parser_out}$N $asn1Parser_seeds $asn1Parser_bin $asn1Parser_version $fuzz_time "nodict" $asn1Parser_param
+        # asn1Parser_size=$(stat -c%s "$asn1Parser_bin")
+        # echo "size of $asn1Parser_bin = $asn1Parser_size bytes"
+        )&
+        (
+        cd ${cmd[0]}
+        ${cmd[1]} ${tiff2ps_out}$N $tiff2ps_seeds $tiff2ps_bin $tiff2ps_version $fuzz_time "nodict" $tiff2ps_param
+        # tiff2ps_size=$(stat -c%s "$tiff2ps_bin")
+        # echo "size of $tiff2ps_bin = $tiff2ps_size bytes"
+        )&
+        (
+        cd ${cmd[0]}
+        ${cmd[1]} ${pspp_out}$N $pspp_seeds $pspp_bin $pspp_version $fuzz_time "nodict" $pspp_param
         # pspp_size=$(stat -c%s "$pspp_bin")
         # echo "size of $pspp_bin = $pspp_size bytes"
         )&
+        (
+        cd ${cmd[0]}
+        ${cmd[1]} ${cjson_out}$N $cjson_seeds $cjson_bin $cjson_version $fuzz_time $cjson_dict $cjson_param
+        # cjson_size=$(stat -c%s "$cjson_bin")
+        # echo "size of $cjson_bin = $cjson_size bytes"
+        )&
     done
     wait
-    echo "experiment $N complete."
+    echo "experiment 2-${N} complete."
 done
 
 
 
+
+######################  LAVA #########################
+
+# (
+# cd ${cmd[0]}
+# ${cmd[1]} ${base64_out}$N $base64_seeds $base64_bin $base64_version $fuzz_time "nodict" $base64_param
+# # base64_size=$(stat -c%s "$base64_bin")
+# # echo "size of $base64_bin = $base64_size bytes"
+# )&
+
+# (
+# cd ${cmd[0]}
+# ${cmd[1]} ${who_out}$N $who_seeds $who_bin $who_version $fuzz_time "nodict" $who_param
+# # who_size=$(stat -c%s "$who_bin")
+# # echo "size of $who_bin = $who_size bytes"
+# )&
+# (
+# cd ${cmd[0]}
+# ${cmd[1]} ${uniq_out}$N $uniq_seeds $uniq_bin $uniq_version $fuzz_time "nodict" $uniq_param
+# # uniq_size=$(stat -c%s "$uniq_bin")
+# # echo "size of $uniq_bin = $uniq_size bytes"
+# )&
+# (
+# cd ${cmd[0]}
+# ${cmd[1]} ${md5sum_out}$N $md5sum_seeds $md5sum_bin $md5sum_version $fuzz_time "nodict" $md5sum_param
+# # md5sum_size=$(stat -c%s "$md5sum_bin")
+# # echo "size of $md5sum_bin = $md5sum_size bytes"
+# )&
 
 
 
@@ -417,20 +436,10 @@ done
 
 
 ########################## with dictionary ######################
-# (
-# cd ${cmd[0]}
-# ${cmd[1]} ${cjson_out}$N $cjson_seeds $cjson_bin $cjson_version $fuzz_time $cjson_param
-# # cjson_size=$(stat -c%s "$cjson_bin")
-# # echo "size of $cjson_bin = $cjson_size bytes"
-# )&
 
 
-# (
-# cd ${cmd[0]}
-# ${cmd[1]} ${pdftohtml_out}$N $pdftohtml_seeds $pdftohtml_bin $pdftohtml_version $fuzz_time $pdftohtml_param
-# # pdftohtml_size=$(stat -c%s "$pdftohtml_bin")
-# # echo "size of $pdftohtml_bin = $pdftohtml_size bytes"
-# )&
+
+
 
 
 
@@ -486,6 +495,13 @@ done
 # avconv_out=${exp_out}/avconv
 # avconv_param="-i @@ -r 24 ${avconv_out}${N}/out.avi"
 # avconv_version=256
+
+# (
+# cd ${cmd[0]}
+# ${cmd[1]} ${avconv_out}$N $avconv_seeds $avconv_bin $avconv_version $fuzz_time $avconv_param
+# # avconv_size=$(stat -c%s "$avconv_bin")
+# # echo "size of $avconv_bin = $avconv_size bytes"
+# )&
 
 # # 31 vim
 # vim_bin=${target_dir}/vim/vim
