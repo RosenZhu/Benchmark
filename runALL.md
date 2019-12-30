@@ -47,7 +47,7 @@ afl-fuzz -i seed_dir -o out_dir -t 500 ...
 -- gm convert -page A4+0+0 @@  */out_dir/out.ps
 
 ## bison/bison
--- bison -vdty @@
+-- bison -vdty -b output_dir @@
 
 ## catdoc/catdoc
 -- catdoc -a @@
@@ -86,7 +86,8 @@ afl-fuzz -i seed_dir -o out_dir -t 500 ...
 [instruction](https://www.gnu.org/software/ncurses/)
 
 ## libsass + sassc
-./sassc @@ > output.css
+### > output.css
+./sassc @@ 
 
 ## libtasn1
 [instruction](https://gnutls.gitlab.io/libtasn1/libtasn1.html#Utilities)
