@@ -283,12 +283,12 @@ make && make install
 
 
 # poppler
-apt-get install libfontconfig1-dev
+````apt-get install libfontconfig1-dev
 tar -xzf poppler-0.22.5.tar.gz
 cd poppler-0.22.5
 ./configure --prefix=/downloads/bins/poppler  --disable-shared CFLAGS="-Wall -g -no-pie" CXXFLAGS="-Wall -Woverloaded-virtual -Wnon-virtual-dtor -Wcast-align -fno-exceptions -fno-check-new -fno-common -g -ansi -no-pie"
 make all
 make install
-
+```
 
 
