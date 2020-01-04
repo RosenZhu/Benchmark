@@ -3,7 +3,7 @@
 
 target_dir=/apps/target-bins
 fuzz_time=24h
-timeout=1000
+timeout=500
 NoDict="nodict"
 # run fuzzing
 #  
