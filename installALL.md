@@ -82,6 +82,7 @@ make && make install
 # GraphicsMagick-1.3.34
 ```
 mkdir /home/xgzhu/apps/srcbuilds/GraphicsMagick
+sudo apt-get install libtiff-dev
 apt-get install lzip
 tar --lzip -xf GraphicsMagick-1.3.34.tar.lz
 cd GraphicsMagick-1.3.34
